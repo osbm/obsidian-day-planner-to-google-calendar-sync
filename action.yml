@@ -1,0 +1,53 @@
+name: Obsidian Day Planner to Google Calendar sync
+description: Obsidian Day Planner to Google Calendar sync
+author: Osman Faruk Bayram
+
+branding:
+  icon: calendar
+  color: blue
+
+inputs:
+  credentials-json:
+    description: 'Credentials JSON'
+    required: true
+
+  token-json:
+    description: 'Token JSON'
+    required: true
+
+  daily-notes-path:
+    description: 'Daily notes path'
+    required: true
+
+  time-zone:
+    description: 'Time zone'
+    required: false
+    default: 'Europe/Istanbul'
+
+  time-window:
+    description: 'Time window'
+    required: false
+    default: 30
+
+  custom-description:
+    description: 'Custom description'
+    required: false
+    default: 'Created by Obsidian Day Planner'
+
+  calendar-id:
+    description: 'Calendar ID'
+    required: false
+    default: 'primary'
+
+
+runs:
+  using: docker
+  image: 'Dockerfile'
+  args:
+    - "--credentials-json=${{inputs.credentials-json}}"
+    - "--token-json=${{inputs.token-json}}"
+    - "--daily-notes-path=${{inputs.daily-notes-path}}"
+    - "--time-zone=${{inputs.time-zone}}"
+    - "--time-window=${{inputs.time-window}}"
+    - "--custom-description=${{inputs.custom-description}}"
+    - "--calendar-id=${{inputs.calendar-id}}"

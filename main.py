@@ -20,6 +20,9 @@ def parse_daily_note_file(file_path):
         if line == "## Day Planner\n" or line == "##  Day Planner\n":
             start_index = i + 1
             break
+
+    if start_index == 0:
+        return []
     # all the lines after the '## Day Planner' line
     lines = lines[start_index:]
     # from pprint import pprint
@@ -48,7 +51,7 @@ def parse_daily_note_file(file_path):
 
     return split_lines
 
-def get_event_json_from_parsed_line(date, parsed_line):
+def get_event_json_from_parsed_line(date, parsed_line, time_zone="Europe/Istanbul", custom_description="Created by planner"):
     # ['9:00', '-', '9:30', 'japanese'],
     #  ['21:00', '-', '22:00', 'Diary'],
     #   ['22:00', '-', '23:00', 'Reading'],
@@ -59,33 +62,36 @@ def get_event_json_from_parsed_line(date, parsed_line):
         end_string = f"{date}T23:59:59"
     return {
         "summary": parsed_line[3],
-        "description": "Created by planner",
+        "description": custom_description,
         "start": {
             "dateTime": start_string,
-            "timeZone": "Europe/Istanbul"
+            "timeZone": time_zone
         },
         "end": {
             "dateTime": end_string,
-            "timeZone": "Europe/Istanbul"
+            "timeZone": time_zone
         }
+    }
 
-def get_all_day_planner_events(daily_notes_path, start_date, end_date):
+def get_all_day_planner_events(daily_notes_path, start_date, end_date, time_zone="Europe/Istanbul", custom_description="Created by planner"):
     files = os.listdir(daily_notes_path)
+
     # filter files that are in the range of start_date and end_date
-    files = [file for file in files if start_date <= datetime.datetime.strptime(file, "%Y-%m-%d") <= end_date]
+    files = [file for file in files if start_date <= datetime.datetime.strptime(file.replace(".md", ""), "%Y-%m-%d") <= end_date]
+    print('files to be processed:', files)
     parsed_events = []
     for file in files:
         parsed_lines = parse_daily_note_file(daily_notes_path + file)
         for parsed_line in parsed_lines:
-            parsed_events.append(get_event_json_from_parsed_line(file, parsed_line))
-
+            event = get_event_json_from_parsed_line(file.replace(".md", ""), parsed_line, time_zone=time_zone, custom_description=custom_description)
+            parsed_events.append(event)
     return parsed_events
 
-def delete_all_events_created_by_planner(service, start_date, end_date):
+def delete_all_events_created_by_planner(service, start_date, end_date, calendar_id="primary"):
     events_result = (
         service.events()
         .list(
-            calendarId="primary",
+            calendarId=calendar_id,
             timeMin=start_date.isoformat() + "Z",
             timeMax=end_date.isoformat() + "Z",
             singleEvents=True,
@@ -97,24 +103,36 @@ def delete_all_events_created_by_planner(service, start_date, end_date):
 
     for event in events:
         if event.get("description") == "Created by planner":
-            service.events().delete(calendarId="primary", eventId=event["id"]).execute()
+            service.events().delete(calendarId=calendar_id, eventId=event["id"]).execute()
 
 
 
 
-def main(service):
+def main(service, daily_notes_path="daily/", time_window=30, calendar_id="primary", time_zone="Europe/Istanbul", custom_description="Created by planner", **kwargs):
+
+    start_date = datetime.datetime.now() - datetime.timedelta(days=1)
+    end_date = datetime.datetime.now() + datetime.timedelta(days=time_window)
     all_day_planner_events = get_all_day_planner_events( # window of time is one month
-        daily_notes_path="daily/", start_date=datetime.datetime.now(), end_date=datetime.datetime.now() + datetime.timedelta(days=30)
+        daily_notes_path=daily_notes_path,
+        start_date=start_date,
+        end_date=end_date,
+        time_zone=time_zone,
+        custom_description=custom_description
+    )
+    print('all_day_planner_events:', all_day_planner_events)
+    delete_all_events_created_by_planner(
+        service,
+        start_date=start_date,
+        end_date=end_date,
+        calendar_id=calendar_id
     )
 
-    delete_all_events_created_by_planner(service, start_date=datetime.datetime.now(), end_date=datetime.datetime.now() + datetime.timedelta(days=30))
-
     for event in all_day_planner_events:
-        event = service.events().insert(calendarId="primary", body=event).execute()
+        event = service.events().insert(calendarId=calendar_id, body=event).execute()
         print(f"event created {event.get('htmlLink')}")
 
 
-def metaauthfunc():
+def metaauthfunc(**kwargs):
     """Shows basic usage of the Google Calendar API.
     Prints the start and name of the next 10 events on the user's calendar.
     """
@@ -138,53 +156,29 @@ def metaauthfunc():
     try:
         service = build("calendar", "v3", credentials=creds)
 
-        main(service)
-        # event = {
-        #     "summary": "testsummary",
-        #     "description" : "descript",
-        #     "colorId": 5,
-        #     "start": {
-        #         "dateTime": "2024-09-24T09:00:00+03:00",
-        #         "timeZone": "Europe/Istanbul"
-        #     },
-        #     "end": {
-        #         "dateTime": "2024-09-24T19:00:00+03:00",
-        #         "timeZone": "Europe/Istanbul"
-        #     }
-        # }
+        main(service, **kwargs)
 
-        # event = service.events().insert(calendarId="primary", body=event).execute()
-
-        # print(f"event created {event.get('htmlLink')}")
-
-        # Call the Calendar API
-        # now = datetime.datetime.utcnow().isoformat() + "Z"  # 'Z' indicates UTC time
-        # print("Getting the upcoming 10 events")
-        # events_result = (
-        #     service.events()
-        #     .list(
-        #         calendarId="primary",
-        #         timeMin=now,
-        #         maxResults=10,
-        #         singleEvents=True,
-        #         orderBy="startTime",
-        #     )
-        #     .execute()
-        # )
-        # events = events_result.get("items", [])
-
-        # if not events:
-        #   print("No upcoming events found.")
-        #   return
-
-        # Prints the start and name of the next 10 events
-        # for event in events:
-        #   start = event["start"].get("dateTime", event["start"].get("date"))
-        #   print(start, event["summary"])
 
     except HttpError as error:
         print(f"An error occurred: {error}")
 
 
 if __name__ == "__main__":
-  parse_daily_note_file("/home/osbm/Documents/rerouting/life/daily/2024-10-01.md")
+    import argparse
+    parser = argparse.ArgumentParser(description="Create events in google calendar from daily notes")
+    parser.add_argument('--credentials_content', default=None, help='Content of the credentials.json file')
+    parser.add_argument("--token_content", default=None, help="Content of the token.json file")
+    parser.add_argument("--daily_notes_path", default="daily/", help="Path to the daily notes folder")
+    parser.add_argument("--time_window", default=30, type=int, help="Time window in days")
+    parser.add_argument("--calendar_id", default="primary", help="Calendar id")
+    parser.add_argument("--time_zone", default="Europe/Istanbul", help="Time zone")
+    parser.add_argument("--custom_description", default="Created by Obsidian Day Planner", help="Custom description")
+    args = parser.parse_args()
+
+    if args.credentials_content and args.token_content:
+        with open("credentials.json", "w") as file:
+            file.write(args.credentials_content)
+        with open("token.json", "w") as file:
+            file.write(args.token_content)
+
+    metaauthfunc(**vars(args))
