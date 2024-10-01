@@ -46,10 +46,10 @@ runs:
   args:
     - 'python'
     - "/app/main.py"
-    - '--credentials-json=${{inputs.credentials-json}}'
-    - '--token-json=${{inputs.token-json}}'
-    - '--daily-notes-path=${{inputs.daily-notes-path}}'
-    - '--time-zone=${{inputs.time-zone}}'
-    - '--time-window=${{inputs.time-window}}'
-    - '--custom-description=${{inputs.custom-description}}'
-    - '--calendar-id=${{inputs.calendar-id}}'
+    - '--credentials_content=${{inputs.credentials-json}}'
+    - '--token_content=${{inputs.token-json}}'
+    - '--daily_notes_path=${{inputs.daily-notes-path}}'
+    - '--time_zone=${{inputs.time-zone}}'
+    - '--time_window=${{inputs.time-window}}'
+    - '--custom_description=${{inputs.custom-description}}'
+    - '--calendar_id=${{inputs.calendar-id}}'
