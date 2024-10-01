@@ -44,10 +44,10 @@ runs:
   using: docker
   image: 'Dockerfile'
   args:
-    - "--credentials-json=${{inputs.credentials-json}}"
-    - "--token-json=${{inputs.token-json}}"
-    - "--daily-notes-path=${{inputs.daily-notes-path}}"
-    - "--time-zone=${{inputs.time-zone}}"
-    - "--time-window=${{inputs.time-window}}"
-    - "--custom-description=${{inputs.custom-description}}"
-    - "--calendar-id=${{inputs.calendar-id}}"
+    - "${{inputs.credentials-json}}"
+    - "${{inputs.token-json}}"
+    - "${{inputs.daily-notes-path}}"
+    - "${{inputs.time-zone}}"
+    - "${{inputs.time-window}}"
+    - "${{inputs.custom-description}}"
+    - "${{inputs.calendar-id}}"
