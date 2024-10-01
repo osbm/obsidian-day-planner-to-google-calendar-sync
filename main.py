@@ -11,6 +11,7 @@ from googleapiclient.errors import HttpError
 SCOPES = ["https://www.googleapis.com/auth/calendar"]
 
 def parse_daily_note_file(file_path):
+    print('file_path:', file_path)
     with open(file_path, "r") as file:
         lines = file.readlines()
 
@@ -25,29 +26,34 @@ def parse_daily_note_file(file_path):
         return []
     # all the lines after the '## Day Planner' line
     lines = lines[start_index:]
-    # from pprint import pprint
-    # pprint(lines)
+    from pprint import pprint
+    pprint(lines)
 
     # remove all lines that does not start with '- '
     lines = [line for line in lines if line.startswith("- ")]
-    # pprint(lines)
+    print('lines:', lines)
+    pprint(lines)
 
     # remove the end of line character from each line
     lines = [line.strip() for line in lines]
-    # pprint(lines)
+    print('stripped lines:', lines)
+    pprint(lines)
 
     # remove empty lines
     lines = [line for line in lines if line]
-    # pprint(lines)
+    print('non empty lines:', lines)
+    pprint(lines)
 
     # remove the '- ' or '- [ ] ' or '- [x] ' from the beginning of each line
     lines = [line[2:] if line.startswith("- ") else line[6:] for line in lines]
-    # pprint(lines)
+    print('removed markdown syntax:', lines)
+    pprint(lines)
 
     # now hard part is to parse the time and the event
     # example lines
     split_lines = [line.split(" ", 3) for line in lines]
-    # pprint(split_lines)
+    print('split lines:', split_lines)
+    pprint(split_lines)
 
     return split_lines
 
