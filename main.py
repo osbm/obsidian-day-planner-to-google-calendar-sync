@@ -45,7 +45,7 @@ def parse_daily_note_file(file_path):
     pprint(lines)
 
     # remove the '- ' or '- [ ] ' or '- [x] ' from the beginning of each line
-    lines = [line[2:] if line.startswith("- ") else line[6:] for line in lines]
+    lines = [line[6:] if line.startswith("- [") else line[2:] for line in lines]
     print('removed markdown syntax:', lines)
     pprint(lines)
 
