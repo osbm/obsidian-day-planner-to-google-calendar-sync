@@ -81,7 +81,7 @@ def get_all_day_planner_events(daily_notes_path, start_date, end_date, time_zone
     print('files to be processed:', files)
     parsed_events = []
     for file in files:
-        parsed_lines = parse_daily_note_file(daily_notes_path + file)
+        parsed_lines = parse_daily_note_file(os.path.join(daily_notes_path, file))
         for parsed_line in parsed_lines:
             event = get_event_json_from_parsed_line(file.replace(".md", ""), parsed_line, time_zone=time_zone, custom_description=custom_description)
             parsed_events.append(event)
