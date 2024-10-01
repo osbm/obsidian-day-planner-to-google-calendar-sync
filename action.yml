@@ -44,6 +44,7 @@ runs:
   using: docker
   image: 'Dockerfile'
   args:
+    - 'python'
     - "/app/main.py"
     - '--credentials-json=${{inputs.credentials-json}}'
     - '--token-json=${{inputs.token-json}}'
