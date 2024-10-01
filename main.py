@@ -87,7 +87,7 @@ def get_all_day_planner_events(daily_notes_path, start_date, end_date, time_zone
             parsed_events.append(event)
     return parsed_events
 
-def delete_all_events_created_by_planner(service, start_date, end_date, calendar_id="primary"):
+def delete_all_events_created_by_planner(service, start_date, end_date, calendar_id="primary", custom_description="Created by planner"):
     events_result = (
         service.events()
         .list(
@@ -102,7 +102,7 @@ def delete_all_events_created_by_planner(service, start_date, end_date, calendar
     events = events_result.get("items", [])
 
     for event in events:
-        if event.get("description") == "Created by planner":
+        if event.get("description") == custom_description:
             service.events().delete(calendarId=calendar_id, eventId=event["id"]).execute()
 
 
@@ -124,7 +124,8 @@ def main(service, daily_notes_path="daily/", time_window=30, calendar_id="primar
         service,
         start_date=start_date,
         end_date=end_date,
-        calendar_id=calendar_id
+        calendar_id=calendar_id,
+        custom_description=custom_description
     )
 
     for event in all_day_planner_events:
