@@ -39,14 +39,14 @@ def parse_daily_note_file(file_path):
     print('stripped lines:', lines)
     pprint(lines)
 
-    # remove empty lines
-    lines = [line for line in lines if line]
-    print('non empty lines:', lines)
-    pprint(lines)
-
     # remove the '- ' or '- [ ] ' or '- [x] ' from the beginning of each line
     lines = [line[6:] if line.startswith("- [") else line[2:] for line in lines]
     print('removed markdown syntax:', lines)
+    pprint(lines)
+
+    # remove empty lines
+    lines = [line for line in lines if line]
+    print('non empty lines:', lines)
     pprint(lines)
 
     # now hard part is to parse the time and the event
