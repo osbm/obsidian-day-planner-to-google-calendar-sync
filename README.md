@@ -3,8 +3,7 @@ This github action helps you sync your actions created by your obsidian Day Plan
 
 To add this github action to your repository add this file to `.github/workflows/sync.yml` with following content:
 
-'''
-
+```yaml
 on:
   push:
     paths:
@@ -31,5 +30,4 @@ jobs:
         time-window: 30
         custom-description: Created by Obsidian Day Planner
         calendar-id: primary
-
-'''
+```
