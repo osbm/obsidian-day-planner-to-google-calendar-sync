@@ -4,6 +4,7 @@ This github action helps you sync your actions created by your obsidian Day Plan
 To add this github action to your repository add this file to `.github/workflows/sync.yml` with following content:
 
 '''
+
 on:
   push:
     paths:
