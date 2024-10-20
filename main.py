@@ -1,4 +1,5 @@
-import datetime
+from pprint import pprint
+from datetime import datetime
 import os.path
 
 from google.auth.transport.requests import Request
@@ -9,6 +10,42 @@ from googleapiclient.errors import HttpError
 
 # If modifying these scopes, delete the file token.json.
 SCOPES = ["https://www.googleapis.com/auth/calendar"]
+
+
+def parse_line(line: str) -> dict:
+    line = line.strip()
+
+    if not line.startswith("- "):
+        return False
+
+
+    # remove the '- ' or '- [ ] ' or '- [x] ' from the beginning of each line
+    line = line[6:] if line.startswith("- [") else line[2:]
+
+    # remove empty lines
+    if not line:
+        return False
+
+    parsed_line = line.split(" ", 3)
+
+
+    beginning_time = datetime.strptime(parsed_line[0], "%H:%M")
+    end_time = datetime.strptime(parsed_line[2], "%H:%M")
+
+    start_string = beginning_time.strftime("T%H:%M:%S")
+    end_string = end_time.strftime("T%H:%M:%S")
+
+
+    if end_string == "T00:00:00":
+        end_string = "T23:59:59"
+
+
+    return [
+        start_string,
+        end_string,
+        parsed_line[3].strip()
+    ]
+
 
 def parse_daily_note_file(file_path):
     print('file_path:', file_path)
@@ -26,48 +63,17 @@ def parse_daily_note_file(file_path):
         return []
     # all the lines after the '## Day Planner' line
     lines = lines[start_index:]
-    from pprint import pprint
     pprint(lines)
 
-    # remove all lines that does not start with '- '
-    lines = [line for line in lines if line.startswith("- ")]
-    print('lines:', lines)
-    pprint(lines)
+    parsed_lines = [ parse_line(line) for line in lines  if parse_line(line)]
 
-    # remove the end of line character from each line
-    lines = [line.strip() for line in lines]
-    print('stripped lines:', lines)
-    pprint(lines)
-
-    # remove the '- ' or '- [ ] ' or '- [x] ' from the beginning of each line
-    lines = [line[6:] if line.startswith("- [") else line[2:] for line in lines]
-    print('removed markdown syntax:', lines)
-    pprint(lines)
-
-    # remove empty lines
-    lines = [line for line in lines if line]
-    print('non empty lines:', lines)
-    pprint(lines)
-
-    # now hard part is to parse the time and the event
-    # example lines
-    split_lines = [line.split(" ", 3) for line in lines]
-    print('split lines:', split_lines)
-    pprint(split_lines)
-
-    return split_lines
-
+    return parsed_lines
 def get_event_json_from_parsed_line(date, parsed_line, time_zone="Europe/Istanbul", custom_description="Created by planner"):
-    # ['9:00', '-', '9:30', 'japanese'],
-    #  ['21:00', '-', '22:00', 'Diary'],
-    #   ['22:00', '-', '23:00', 'Reading'],
-    #  ['23:00', '-', '00:00', 'Sleep']]
-    start_string = f"{date}T{parsed_line[0]}:00"
-    end_string = f"{date}T{parsed_line[2]}:00"
-    if parsed_line[2] == "00:00":
-        end_string = f"{date}T23:59:59"
+    start_string = date + parsed_line[0]
+    end_string = date + parsed_line[1]
+
     return {
-        "summary": parsed_line[3],
+        "summary": parsed_line[2],
         "description": custom_description,
         "start": {
             "dateTime": start_string,
@@ -110,8 +116,6 @@ def delete_all_events_created_by_planner(service, start_date, end_date, calendar
     for event in events:
         if event.get("description") == custom_description:
             service.events().delete(calendarId=calendar_id, eventId=event["id"]).execute()
-
-
 
 
 def main(service, daily_notes_path="daily/", time_window=30, calendar_id="primary", time_zone="Europe/Istanbul", custom_description="Created by planner", **kwargs):
