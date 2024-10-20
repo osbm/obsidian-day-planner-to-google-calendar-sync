@@ -75,11 +75,11 @@ def get_event_json_from_parsed_line(date, parsed_line, time_zone="Europe/Istanbu
         "summary": parsed_line[2],
         "description": custom_description,
         "start": {
-            "datetime.datetime": start_string,
+            "dateTime": start_string,
             "timeZone": time_zone
         },
         "end": {
-            "datetime.datetime": end_string,
+            "dateTime": end_string,
             "timeZone": time_zone
         }
     }
