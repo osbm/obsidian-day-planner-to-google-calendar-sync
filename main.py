@@ -1,7 +1,6 @@
 from pprint import pprint
-from datetime import datetime
 import os.path
-
+import datetime
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
@@ -29,8 +28,8 @@ def parse_line(line: str) -> dict:
     parsed_line = line.split(" ", 3)
 
 
-    beginning_time = datetime.strptime(parsed_line[0], "%H:%M")
-    end_time = datetime.strptime(parsed_line[2], "%H:%M")
+    beginning_time = datetime.datetime.strptime(parsed_line[0], "%H:%M")
+    end_time = datetime.datetime.strptime(parsed_line[2], "%H:%M")
 
     start_string = beginning_time.strftime("T%H:%M:%S")
     end_string = end_time.strftime("T%H:%M:%S")
@@ -76,11 +75,11 @@ def get_event_json_from_parsed_line(date, parsed_line, time_zone="Europe/Istanbu
         "summary": parsed_line[2],
         "description": custom_description,
         "start": {
-            "dateTime": start_string,
+            "datetime.datetime": start_string,
             "timeZone": time_zone
         },
         "end": {
-            "dateTime": end_string,
+            "datetime.datetime": end_string,
             "timeZone": time_zone
         }
     }
@@ -89,7 +88,7 @@ def get_all_day_planner_events(daily_notes_path, start_date, end_date, time_zone
     files = os.listdir(daily_notes_path)
 
     # filter files that are in the range of start_date and end_date
-    files = [file for file in files if start_date <= datetime.strptime(file.replace(".md", ""), "%Y-%m-%d") <= end_date]
+    files = [file for file in files if start_date <= datetime.datetime.strptime(file.replace(".md", ""), "%Y-%m-%d") <= end_date]
     print('files to be processed:', files)
     parsed_events = []
     for file in files:
@@ -120,8 +119,8 @@ def delete_all_events_created_by_planner(service, start_date, end_date, calendar
 
 def main(service, daily_notes_path="daily/", time_window=30, calendar_id="primary", time_zone="Europe/Istanbul", custom_description="Created by planner", **kwargs):
 
-    start_date = datetime.now() - datetime.timedelta(days=1)
-    end_date = datetime.now() + datetime.timedelta(days=time_window)
+    start_date = datetime.datetime.now() - datetime.timedelta(days=1)
+    end_date = datetime.datetime.now() + datetime.timedelta(days=time_window)
     all_day_planner_events = get_all_day_planner_events( # window of time is one month
         daily_notes_path=daily_notes_path,
         start_date=start_date,
