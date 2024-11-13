@@ -11,17 +11,15 @@
     pkgs = import nixpkgs {
         inherit system;
     };
+    environment_packages = with pkgs; [
+      python312
+      python312Packages.google-api-python-client
+      python312Packages.google-auth-httplib2
+      python312Packages.google-auth-oauthlib
+    ];
   in {
     devShells."${system}".default = pkgs.mkShell {
-      # create an environment with nodejs_18, pnpm, and yarn
-      packages = with pkgs; [
-         (pkgs.python312.withPackages (ppkgs: [
-            python312Packages.google-api-python-client
-            python312Packages.google-auth-httplib2
-            python312Packages.google-auth-oauthlib
-          ]))
-      ];
-
+      packages = environment_packages;
       shellHook = ''
         echo 'Welcome to the development environment of the Obsidian Day Planner to Google Calendar Sync repository. (definitely needs a shorter name)'
       '';
@@ -31,18 +29,12 @@
         dontBuild = true;
         src = ./.;
         doCheck = true;
-        nativeBuildInputs = with pkgs; [
-         (pkgs.python312.withPackages (ppkgs: [
-            python312Packages.google-api-python-client
-            python312Packages.google-auth-httplib2
-            python312Packages.google-auth-oauthlib
-          ]))
-        ];
+        nativeBuildInputs = environment_packages;
         checkPhase = ''
           python -m unittest tests/main_test.py
         '';
         installPhase = ''
-          mkdir "$out"
+          mkdir -p "$out"
         '';
     };
   };
