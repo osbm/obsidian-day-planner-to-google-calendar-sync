@@ -25,7 +25,7 @@
       ];
 
       shellHook = ''
-        echo Welcommeeeee
+        echo 'Welcome to the development environment of the Obsidian Day Planner to Google Calendar Sync repository. (definitely needs a shorter name)'
       '';
     };
   };
