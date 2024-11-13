@@ -8,12 +8,11 @@
 
   outputs = { self , nixpkgs ,... }: let
     system = "x86_64-linux";
-  in {
-    devShells."${system}".default = let
-      pkgs = import nixpkgs {
+    pkgs = import nixpkgs {
         inherit system;
-      };
-    in pkgs.mkShell {
+    };
+  in {
+    devShells."${system}".default = pkgs.mkShell {
       # create an environment with nodejs_18, pnpm, and yarn
       packages = with pkgs; [
          (pkgs.python312.withPackages (ppkgs: [
@@ -27,5 +26,12 @@
         echo 'Welcome to the development environment of the Obsidian Day Planner to Google Calendar Sync repository. (definitely needs a shorter name)'
       '';
     };
+    # checks."${system}".default = pkgs.stdenv.mkDerivation {
+    #   name = "flake-checks";
+    #   buildInputs = [ pkgs.
+    #   shellHook = ''
+    #     echo 'Welcome to the flake checks environment of the Obsidian Day Planner to Google Calendar Sync repository. (definitely needs a shorter name)'
+    #   '';
+    # };
   };
 }
