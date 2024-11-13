@@ -36,7 +36,16 @@ class TestMain(unittest.TestCase):
             {
                 'input': '\n',
                 'expected': False
+            },
+            {
+                'input': '- 14:00 - 15:00 \n',
+                'expected': False,
+            },
+            {
+                'input': '- 14:00 - 15:00\n',
+                'expected': False,
             }
+
         ]
 
         for test_case in test_cases:
