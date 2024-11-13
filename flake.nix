@@ -26,12 +26,18 @@
         echo 'Welcome to the development environment of the Obsidian Day Planner to Google Calendar Sync repository. (definitely needs a shorter name)'
       '';
     };
-    # checks."${system}".default = pkgs.stdenv.mkDerivation {
-    #   name = "flake-checks";
-    #   buildInputs = [ pkgs.
-    #   shellHook = ''
-    #     echo 'Welcome to the flake checks environment of the Obsidian Day Planner to Google Calendar Sync repository. (definitely needs a shorter name)'
-    #   '';
-    # };
+    checks."${system}".default = pkgs.runCommandLocal "unittest" {
+      src = ./.;
+      nativeBuildInputs = with pkgs; [
+         (pkgs.python312.withPackages (ppkgs: [
+            python312Packages.google-api-python-client
+            python312Packages.google-auth-httplib2
+            python312Packages.google-auth-oauthlib
+          ]))
+      ];
+    } ''
+      python -m unittest tests/main_test.py
+    '';
+
   };
 }
