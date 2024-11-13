@@ -27,6 +27,10 @@ def parse_line(line: str) -> dict:
 
     parsed_line = line.split(" ", 3)
 
+    if len(parsed_line) < 4:
+        # for example if the line is '- 10:00 - 12:00\n' it will be split
+        # into ['10:00', '-', '12:00'] which is not a valid line
+        return False
 
     beginning_time = datetime.datetime.strptime(parsed_line[0], "%H:%M")
     end_time = datetime.datetime.strptime(parsed_line[2], "%H:%M")
