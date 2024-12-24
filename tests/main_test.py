@@ -26,6 +26,11 @@ class TestMain(unittest.TestCase):
                 'expected': ['T23:00:00', 'T23:59:59', 'Meeting with John']
             },
             {
+                'input': ' - 23:00 - 00:00 Meeting my god',
+                'expected': ['T23:00:00', 'T23:59:59', 'Meeting my god']
+
+            },
+            {
                 'input': '',
                 'expected': False
             },
@@ -102,3 +107,4 @@ class TestMain(unittest.TestCase):
             with self.subTest(test_case=test_case):
                 result = get_event_json_from_parsed_line(**test_case['inputs'])
                 self.assertEqual(result, test_case['expected'])
+
