@@ -12,6 +12,7 @@ SCOPES = ["https://www.googleapis.com/auth/calendar"]
 
 
 def parse_line(line: str) -> dict:
+    print('parsing line:', line)
     line = line.strip()
 
     if not line.startswith("- "):
