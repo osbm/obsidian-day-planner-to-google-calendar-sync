@@ -66,6 +66,10 @@ class TestMain(unittest.TestCase):
                 'input': '- ',
                 'expected': False,
             },
+            {
+                'input': '-  13:00 - 14:30 go to the lecture',
+                'expected': ['T13:00:00', 'T14:30:00', 'go to the lecture']
+            },
         ]
 
         for test_case in test_cases:
